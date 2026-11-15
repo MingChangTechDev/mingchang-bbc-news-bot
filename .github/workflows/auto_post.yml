@@ -1,16 +1,15 @@
-name: MingChang Warm Tech News Bot
+name: 執行 BBC 新聞機器人
 
 on:
   schedule:
-    # 每天台灣時間早上 08:30、中午 12:30、晚上 20:30 自動執行（對應 UTC 00:30, 04:30, 12:30）
-    - cron: '30 0,4,12 * * *'
-  workflow_dispatch: # 允許你隨時在 GitHub 網頁手動按按鈕測試執行
+    - cron: '0 8 * * *'
+  workflow_dispatch:
 
 jobs:
   run-news-bot:
     runs-on: ubuntu-latest
     steps:
-      - name: 下載最新程式碼
+      - name: 簽出程式碼
         uses: actions/checkout@v4
 
       - name: 設定 Python 環境
@@ -18,10 +17,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 執行 BBC 暖心新聞機器人
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
-          FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
-          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+      - name: Install dependencies
+        run: pip install requests feedparser google-genai
+
+      - name: 執行 BBC 新聞機器人
         run: python main.py
