@@ -11,7 +11,7 @@ def fetch_latest_bbc_news():
     """自動抓取 BBC 最新國際與科技新聞"""
     rss_url = "http://feeds.bbci.co.uk/news/world/rss.xml"
     try:
-        response = requests.get(rss_url)
+        response = requests.get(rss_url, timeout=10)
         root = ET.fromstring(response.content)
         item = root.find('./channel/item')
         if item is not None:
@@ -35,7 +35,7 @@ def post_to_facebook(message):
         'message': message,
         'access_token': ACCESS_TOKEN
     }
-    res = requests.post(url, data=payload).json()
+    response = requests.post(url, json=payload, timeout=10)
     print("Facebook 發文結果:", res)
 
 def post_to_instagram(message):
