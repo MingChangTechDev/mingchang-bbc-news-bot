@@ -27,8 +27,7 @@ except Exception as e:
 def post_to_facebook(msg):
     """發布文章到 Facebook 粉絲專頁"""
     if not ACCESS_TOKEN or not PAGE_ID:
-        print("【銘昌科技】FB_ACCESS_TOKEN 或 FB_PAGE_ID 缺少，跳過發文。")
-        return
+        raise ValueError("【銘昌科技】FB_ACCESS_TOKEN 或 FB_PAGE_ID 缺少。")
 
     url = f"https://graph.facebook.com/v18.0/{PAGE_ID}/feed"
     payload = {
@@ -36,11 +35,17 @@ def post_to_facebook(msg):
         'access_token': ACCESS_TOKEN
     }
     
+    response = requests.post(url, json=payload, timeout=30)
+    print("【銘昌科技】臉書伺服器回應：", response.text)
+    
+    # 解析臉書回應，如果有錯誤就直接讓程式中斷報錯
     try:
-        response = requests.post(url, json=payload, timeout=30)
-        print("【銘昌科技】發文結果：", response.text)
-    except Exception as e:
-        print(f"【銘昌科技】發文發生錯誤：{e}")
+        data = response.json()
+        if "error" in data:
+            raise Exception(f"Facebook 拒絕發文: {data['error'].get('message')}")
+    except Exception as parse_err:
+        if "error" in response.text:
+            raise Exception(f"Facebook 拒絕發文: {response.text}")
 
 # 執行發文動作
 if message:
